@@ -17,3 +17,5 @@ Imports:
   gridExtra,
   nortest, 
   PearsonDS
+URL: https://github.com/harnam1/MyProject
+BugReports: https://github.com/harnam1/MyProject/issues
