@@ -9,7 +9,7 @@
 #' @export
 #'
 #' @importFrom copula fitCopula tCopula gumbelCopula frankCopula claytonCopula normalCopula
-#' @importFrom nortest ad.test
+#' @importFrom ADGofTest ad.test
 #' @importFrom stats AIC BIC logLik punif
 #' @importFrom PearsonDS ppearsonI ppearsonIII ppearsonIV
 analyze_copulas <- function(data, params_list) {
@@ -38,12 +38,12 @@ analyze_copulas <- function(data, params_list) {
 
   data_uniform <- cbind(u1, u2, u3, u4)
 
-  # Perform AD test for uniformity using nortest::ad.test
+  # Perform AD test for uniformity using ADGofTest::ad.test
   ad_results <- list(
-    parker = ad.test(u1, distr.fun = stats::punif),
-    green = ad.test(u2, distr.fun = stats::punif),
-    cameo = ad.test(u3, distr.fun = stats::punif),
-    gunnison = ad.test(u4, distr.fun = stats::punif)
+    parker = ADGofTest::ad.test(u1, punif),
+    green = ADGofTest::ad.test(u2, punif),
+    cameo = ADGofTest::ad.test(u3, punif),
+    gunnison = ADGofTest::ad.test(u4, punif)
   )
 
   # Internal function to fit and evaluate copulas

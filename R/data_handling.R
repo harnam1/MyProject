@@ -9,7 +9,7 @@
 #' @export
 load_peakflow_data <- function(data = NULL) {
   if (is.null(data)) {
-    data("data_peakflow", package = "myPackage", envir = environment())
+    data("data_peakflow", package = "MyProject", envir = environment())
     data <- data_peakflow
   }
   data$date <- as.Date(data$date)

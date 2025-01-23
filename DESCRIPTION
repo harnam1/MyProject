@@ -16,6 +16,7 @@ Imports:
   ggplot2,
   gridExtra,
   nortest, 
-  PearsonDS
+  PearsonDS, 
+  ADGofTest
 URL: https://github.com/harnam1/MyProject
 BugReports: https://github.com/harnam1/MyProject/issues
