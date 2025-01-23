@@ -10,12 +10,16 @@ df <- load_peakflow_data()
 head(df)
 
 # Step 3: Plot the time series using the package function
-# This replicates the ggplot time-series plot from the original code
-plot_time_series(df)
+# df has a date column and columns c("parkerdam","greenriver","cameo","gunnison")
+flow_cols <- c("parkerdam", "greenriver", "cameo", "gunnison")
+
+# Time Series
+plot_time_series(df, date, flow_cols)
 
 # Step 4: Plot histograms for each river using your package function
 # This replaces the manual histogram calls with the `plot_river_histograms()` function
-plot_river_histograms(df)
+plot_river_histograms(df, flow_cols)
+
 
 # Step 5: Fit Pearson parameters to each river
 params_list <- fit_pearson_params(df)
