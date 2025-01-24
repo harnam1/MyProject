@@ -29,8 +29,7 @@ plot_histograms_with_density(df, flow_cols, params_list)
 
 # Step 7: Analyze copulas
 # This function internally transforms data to uniform scale, performs AD tests,
-# fits copulas, and returns results similar to what you did manually before.
-results <- analyze_copulas(df, params_list)
+results <- analyze_copulas(df,flow_cols, params_list)
 
 # Print out copula summary results
 print(results$Summary)
