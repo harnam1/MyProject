@@ -22,11 +22,10 @@ plot_river_histograms(df, flow_cols)
 
 
 # Step 5: Fit Pearson parameters to each river
-params_list <- fit_pearson_params(df)
+params_list <- fit_pearson_params(df, flow_cols)
 
 # Step 6: Plot histograms with density lines for each river using the parameters
-# This replaces the line-by-line calls of `plot_histogram_with_density()`
-plot_histograms_with_density(df, params_list)
+plot_histograms_with_density(df, flow_cols, params_list)
 
 # Step 7: Analyze copulas
 # This function internally transforms data to uniform scale, performs AD tests,

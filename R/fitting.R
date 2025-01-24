@@ -1,54 +1,91 @@
-#' Fit Pearson Distributions to Each River
+#' Fit Pearson Distributions to Multiple Columns
 #'
-#' Fits Pearson distributions to each river's flow data using Maximum Likelihood Estimation.
+#' Fits a Pearson distribution (via \code{PearsonDS::pearsonFitML}) to each
+#' specified column in \code{flow_cols} and returns a named list of fitted parameters.
 #'
-#' @param data Data frame with columns for each river.
-#' @return A list of parameter sets for each river.
+#' @param data A data frame containing the columns to be fitted.
+#' @param flow_cols A character vector of column names to which Pearson distributions
+#'   will be fitted.
+#'
+#' @return A named list of parameter sets for each column in \code{flow_cols}.
 #' @export
+#'
+#' @examples
+#' \dontrun{
+#' # Suppose df has columns c("parkerdam", "greenriver", "cameo", "gunnison")
+#' params_list <- fit_pearson_params(df, c("parkerdam","greenriver","cameo","gunnison"))
+#' }
+#'
 #' @importFrom PearsonDS pearsonFitML
-fit_pearson_params <- function(data) {
-  params_parker <- pearsonFitML(data$parkerdam)
-  params_green <- pearsonFitML(data$greenriver)
-  params_cameo <- pearsonFitML(data$cameo)
-  params_gunnison <- pearsonFitML(data$gunnison)
-
-  list(parker = params_parker,
-       green = params_green,
-       cameo = params_cameo,
-       gunnison = params_gunnison)
+fit_pearson_params <- function(data, flow_cols) {
+  # Use lapply to fit each column, returning a list of parameter sets
+  fits <- lapply(flow_cols, function(col_name) {
+    PearsonDS::pearsonFitML(data[[col_name]])
+  })
+  # Name the list entries after the columns
+  names(fits) <- flow_cols
+  fits
 }
 
-#' Plot Histograms with Density Lines Based on Pearson Fits
-#'
-#' Plots histograms for each river's flow data and overlays density lines
-#' based on fitted Pearson distributions.
-#'
-#' @param data The data frame.
-#' @param params_list A list of parameter sets returned by fit_pearson_params.
-#' @return A grid of ggplot histograms with density lines.
-#' @export
-#' @importFrom ggplot2 ggplot geom_histogram geom_line aes after_stat labs theme_minimal
-#' @importFrom gridExtra grid.arrange
-#' @importFrom PearsonDS dpearson
-plot_histograms_with_density <- function(data, params_list) {
-  plot_histogram_with_density <- function(data, column, title, params) {
-    column_data <- na.omit(data[[column]])
-    x_vals <- seq(min(column_data), max(column_data), length.out = 100)
-    pearson_density <- dpearson(x_vals, params = params)
-    fitted_data <- data.frame(x = x_vals, density = pearson_density)
 
-    ggplot(data = data.frame(flow = column_data), aes(x = flow)) +
-      geom_histogram(aes(y = after_stat(density)), bins = 18, fill = "white",
-                     color = "black", alpha = 0.7) +
-      geom_line(data = fitted_data, aes(x = x, y = density), color = "red", size = 1) +
-      labs(title = title, x = "Flow Rate", y = "Density") +
-      theme_minimal()
+#' Plot Histograms with Density Lines (Base R) for Multiple Columns
+#'
+#' Plots histograms for each specified column and overlays density lines
+#' based on the fitted Pearson parameters from \code{fit_pearson_params()}.
+#' Uses base R plotting (\code{hist()} and \code{lines()}) instead of ggplot2.
+#'
+#' @param data A data frame containing the columns to plot.
+#' @param flow_cols A character vector of column names to be plotted.
+#' @param params_list A named list of parameter sets returned by
+#'   \code{fit_pearson_params()}, where each list element corresponds to a column
+#'   in \code{flow_cols}.
+#'
+#' @return No return value; base R plots are drawn in the current graphics device.
+#' @export
+#'
+#' @examples
+#' \dontrun{
+#' df <- data.frame(x = rnorm(100), y = rnorm(100, 5, 2))
+#' params <- fit_pearson_params(df, c("x","y"))
+#' plot_histograms_with_density(df, c("x","y"), params)
+#' }
+#'
+#' @importFrom PearsonDS dpearson
+plot_histograms_with_density <- function(data, flow_cols, params_list) {
+  # Determine layout for multiple histograms
+  n_cols <- length(flow_cols)
+  nrow <- ceiling(sqrt(n_cols))
+  ncol <- ceiling(n_cols / nrow)
+
+  # Save old par settings
+  old_par <- par(mfrow = c(nrow, ncol))
+  on.exit(par(old_par), add = TRUE)
+
+  # Loop over columns
+  for (col_name in flow_cols) {
+    # Extract the data for the column
+    column_data <- na.omit(data[[col_name]])
+
+    # Base histogram
+    hist(column_data,
+         main = col_name,
+         xlab = "Flow Rate",
+         freq = FALSE,      # plot density on y-axis
+         col = "white",
+         border = "black")
+
+    # Generate a sequence of x values over the data range
+    x_vals <- seq(min(column_data), max(column_data), length.out = 100)
+
+    # Retrieve the fitted params for this column
+    pearson_params <- params_list[[col_name]]
+
+    # Calculate the Pearson density
+    pearson_density <- PearsonDS::dpearson(x_vals, params = pearson_params)
+
+    # Overlay the density line in red
+    lines(x_vals, pearson_density, col = "red", lwd = 2)
   }
 
-  plot_parker <- plot_histogram_with_density(data, "parkerdam", "Parker Dam", params_list$parker)
-  plot_green <- plot_histogram_with_density(data, "greenriver", "Green River", params_list$green)
-  plot_cameo <- plot_histogram_with_density(data, "cameo", "Cameo", params_list$cameo)
-  plot_gunnison <- plot_histogram_with_density(data, "gunnison", "Gunnison", params_list$gunnison)
-
-  grid.arrange(plot_parker, plot_green, plot_cameo, plot_gunnison, ncol = 2)
+  invisible(NULL)
 }
