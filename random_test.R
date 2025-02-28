@@ -10,24 +10,26 @@ df <- load_peakflow_data()
 head(df)
 
 # Step 3: Plot the time series using the package function
-# This replicates the ggplot time-series plot from the original code
-plot_time_series(df)
+# df has a date column and columns c("parkerdam","greenriver","cameo","gunnison")
+flow_cols <- c("parkerdam", "greenriver", "cameo", "gunnison")
+
+# Time Series
+plot_time_series(df, date, flow_cols)
 
 # Step 4: Plot histograms for each river using your package function
 # This replaces the manual histogram calls with the `plot_river_histograms()` function
-plot_river_histograms(df)
+plot_river_histograms(df, flow_cols)
+
 
 # Step 5: Fit Pearson parameters to each river
-params_list <- fit_pearson_params(df)
+params_list <- fit_pearson_params(df, flow_cols)
 
 # Step 6: Plot histograms with density lines for each river using the parameters
-# This replaces the line-by-line calls of `plot_histogram_with_density()`
-plot_histograms_with_density(df, params_list)
+plot_histograms_with_density(df, flow_cols, params_list)
 
 # Step 7: Analyze copulas
 # This function internally transforms data to uniform scale, performs AD tests,
-# fits copulas, and returns results similar to what you did manually before.
-results <- analyze_copulas(df, params_list)
+results <- analyze_copulas(df,flow_cols, params_list)
 
 # Print out copula summary results
 print(results$Summary)
