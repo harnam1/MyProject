@@ -37,29 +37,45 @@ print(results$Summary)
 # The AD results (uniformity tests) are also included:
 print(results$AD_Results)
 
-# If you need conditional probabilities for gumbel, clayton, frank, etc.,
-# and `analyze_copulas()` doesn't provide them directly, consider:
-# - Adding a function to compute them using the uniform values and fitted copulas
-# - Or extract the fitted copulas and thresholds from `results` and replicate the logic manually here.
+# Step 8: Compute Conditional Survival Probability using compute_conditional_survival()
+# Define thresholds for each river using 99th percentiles:
+thresholds <- c(
+  parkerdam  = as.numeric(quantile(df$parkerdam, 0.99, na.rm = TRUE)),
+  greenriver = as.numeric(quantile(df$greenriver, 0.99, na.rm = TRUE)),
+  cameo      = as.numeric(quantile(df$cameo, 0.99, na.rm = TRUE)),
+  gunnison   = as.numeric(quantile(df$gunnison, 0.99, na.rm = TRUE))
+)
 
-# For now, `analyze_copulas()` should replicate the logic of:
-# - Transforming data to uniform margins
-# - Performing AD tests on uniform data
-# - Fitting copulas and generating a summary table
+# For instance, we want to compute the conditional probability:
+# In this case, Parker Dam is the first variable and we condition on the remaining ones.
+cond_indices <- 2:4
 
-# If you want the exact conditional probability calculations done previously:
-# You may need to write a small function or code block that:
-# - Uses s1, s2, s3, s4 (computed from the thresholds and survival functions)
-# - Extracts a fitted copula from results (e.g., gumbel_copula)
-# - Computes joint and marginal probabilities, then conditional probabilities
-# Similar to your original code.
+#Compute conditional survival probability using "Gumbel Copula"
+cond_prob_gumbel <- compute_conditional_survival(
+ analysis_results = results,
+ copula_name      = "Gumbel Copula",
+ thresholds       = thresholds,
+ params_list      = params_list,
+ cond_indices     = cond_indices
+)
+cat("Conditional Survival Probability (Gumbel Copula):", cond_prob_gumbel, "\n")
 
-# Example (if needed):
-# s1 <- S1(x1); s2 <- S2(x2); s3 <- S3(x3); s4 <- S4(x4)
-# gumbel_copula <- results$Copula_Results[[which(...)]]$Fit@copula  # or something similar
-# ... and so on.
+# Compute conditional survival probability using Clayton Copula
+cond_prob_clayton <- compute_conditional_survival(
+  analysis_results = results,
+  copula_name      = "Clayton Copula",
+  thresholds       = thresholds,
+  params_list      = params_list,
+  cond_indices     = cond_indices
+)
+cat("Conditional Survival Probability (Clayton Copula):", cond_prob_clayton, "\n")
 
-# In summary:
-# This `testing.R` script loads all functions from your package and uses them
-# to replicate the original results. If something doesn't produce identical results,
-# it's likely due to differences in how `analyze_copulas()` encapsulates logic.
+# Compute conditional survival probability using Frank Copula
+cond_prob_frank <- compute_conditional_survival(
+  analysis_results = results,
+  copula_name      = "Frank Copula",
+  thresholds       = thresholds,
+  params_list      = params_list,
+  cond_indices     = cond_indices
+)
+cat("Conditional Survival Probability (Frank Copula):", cond_prob_frank, "\n")
