@@ -12,6 +12,7 @@ load_peakflow_data <- function(data = NULL) {
     data("data_peakflow", package = "MyProject", envir = environment())
     data <- data_peakflow
   }
-  data$date <- as.Date(data$date)
+  data$date <- as.Date(data$date, "%d/%m/%Y")  # Convert date
+
   return(data)
 }

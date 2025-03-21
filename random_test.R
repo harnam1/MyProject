@@ -1,3 +1,4 @@
+library(ggplot2)  # Load ggplot2 explicitly if not already loaded
 # Step 1: Setting the working directory and loading the functions into the environment
 setwd("/Users/harnamsinghthethi/Desktop/Uni stuff/Third Year/Project/MyProject")   # Set working directory to your package
 devtools::load_all()
@@ -16,6 +17,7 @@ flow_cols <- c("parkerdam", "greenriver", "cameo", "gunnison")
 # Time Series
 plot_time_series(df, date, flow_cols)
 
+
 # Step 4: Plot histograms for each river using your package function
 # This replaces the manual histogram calls with the `plot_river_histograms()` function
 plot_river_histograms(df, flow_cols)
@@ -31,35 +33,136 @@ plot_histograms_with_density(df, flow_cols, params_list)
 # This function internally transforms data to uniform scale, performs AD tests,
 results <- analyze_copulas(df,flow_cols, params_list)
 
+# Comment this out usually!!
+#write.csv(results$Summary, file = "copula_summary.csv", row.names = FALSE)
 # Print out copula summary results
 print(results$Summary)
 
 # The AD results (uniformity tests) are also included:
 print(results$AD_Results)
 
-# If you need conditional probabilities for gumbel, clayton, frank, etc.,
-# and `analyze_copulas()` doesn't provide them directly, consider:
-# - Adding a function to compute them using the uniform values and fitted copulas
-# - Or extract the fitted copulas and thresholds from `results` and replicate the logic manually here.
+# Step 8: Compute Conditional Survival Probability using compute_conditional_survival()
+# Define thresholds for each river using 99th percentiles:
+thresholds <- c(
+  parkerdam  = as.numeric(quantile(df$parkerdam, 0.99, na.rm = TRUE)),
+  greenriver = as.numeric(quantile(df$greenriver, 0.99, na.rm = TRUE)),
+  cameo      = as.numeric(quantile(df$cameo, 0.99, na.rm = TRUE)),
+  gunnison   = as.numeric(quantile(df$gunnison, 0.99, na.rm = TRUE))
+)
 
-# For now, `analyze_copulas()` should replicate the logic of:
-# - Transforming data to uniform margins
-# - Performing AD tests on uniform data
-# - Fitting copulas and generating a summary table
+# For instance, we want to compute the conditional probability:
+# In this case, Parker Dam is the first variable and we condition on the remaining ones.
+cond_indices <- 2:4
 
-# If you want the exact conditional probability calculations done previously:
-# You may need to write a small function or code block that:
-# - Uses s1, s2, s3, s4 (computed from the thresholds and survival functions)
-# - Extracts a fitted copula from results (e.g., gumbel_copula)
-# - Computes joint and marginal probabilities, then conditional probabilities
-# Similar to your original code.
+#Compute conditional survival probability using "Gumbel Copula"
+cond_prob_gumbel <- compute_conditional_survival(
+ analysis_results = results,
+ copula_name      = "Gumbel Copula",
+ thresholds       = thresholds,
+ params_list      = params_list,
+ cond_indices     = cond_indices
+)
+cat("Conditional Survival Probability (Gumbel Copula):", cond_prob_gumbel, "\n")
 
-# Example (if needed):
-# s1 <- S1(x1); s2 <- S2(x2); s3 <- S3(x3); s4 <- S4(x4)
-# gumbel_copula <- results$Copula_Results[[which(...)]]$Fit@copula  # or something similar
-# ... and so on.
+# Compute conditional survival probability using Clayton Copula
+cond_prob_clayton <- compute_conditional_survival(
+  analysis_results = results,
+  copula_name      = "Clayton Copula",
+  thresholds       = thresholds,
+  params_list      = params_list,
+  cond_indices     = cond_indices
+)
+cat("Conditional Survival Probability (Clayton Copula):", cond_prob_clayton, "\n")
 
-# In summary:
-# This `testing.R` script loads all functions from your package and uses them
-# to replicate the original results. If something doesn't produce identical results,
-# it's likely due to differences in how `analyze_copulas()` encapsulates logic.
+# Compute conditional survival probability using Frank Copula
+cond_prob_frank <- compute_conditional_survival(
+  analysis_results = results,
+  copula_name      = "Frank Copula",
+  thresholds       = thresholds,
+  params_list      = params_list,
+  cond_indices     = cond_indices
+)
+cat("Conditional Survival Probability (Frank Copula):", cond_prob_frank, "\n")
+
+
+
+
+
+
+
+
+
+# Load package functions
+devtools::load_all()
+
+
+flow_cols = c("parkerdam", "greenriver", "cameo", "gunnison")
+data = load_peakflow_data()
+params_list <- fit_pearson_params(data, flow_cols)
+
+# Fit copulas using uniform data and Pearson parameters
+copula_results <- analyze_copulas(
+  data = data,
+  flow_cols = flow_cols,
+  params_list <- params_list
+
+)
+
+# Define 0.99 thresholds for a 1-in-100-year event for each river
+thresholds_99 <- c(
+  parkerdam = 0.99,
+  greenriver = 0.99,
+  cameo = 0.99,
+  gunnison = 0.99
+)
+
+# Specify the conditioning set indices (e.g., last three rivers)
+cond_indices <- 2:4
+
+# Compute conditional survival probability for each copula individually
+cond_prob_T <- compute_conditional_survival(
+  analysis_results = copula_results,
+  copula_name = "T Copula",
+  thresholds = thresholds_99,
+  params_list = params_list,
+  cond_indices = cond_indices
+)
+
+cond_prob_Gumbel <- compute_conditional_survival(
+  analysis_results = copula_results,
+  copula_name = "Gumbel Copula",
+  thresholds = thresholds_99,
+  params_list = params_list,
+  cond_indices = cond_indices
+)
+
+cond_prob_Frank <- compute_conditional_survival(
+  analysis_results = copula_results,
+  copula_name = "Frank Copula",
+  thresholds = thresholds_99,
+  params_list = params_list,
+  cond_indices = cond_indices
+)
+
+cond_prob_Clayton <- compute_conditional_survival(
+  analysis_results = copula_results,
+  copula_name = "Clayton Copula",
+  thresholds = thresholds_99,
+  params_list = params_list,
+  cond_indices = cond_indices
+)
+
+cond_prob_Gaussian <- compute_conditional_survival(
+  analysis_results = copula_results,
+  copula_name = "Gaussian Copula",
+  thresholds = thresholds_99,
+  params_list = params_list,
+  cond_indices = cond_indices
+)
+
+# Print the conditional survival probabilities for each copula
+print(c("T Copula" = cond_prob_T,
+        "Gumbel Copula" = cond_prob_Gumbel,
+        "Frank Copula" = cond_prob_Frank,
+        "Clayton Copula" = cond_prob_Clayton,
+        "Gaussian Copula" = cond_prob_Gaussian))
