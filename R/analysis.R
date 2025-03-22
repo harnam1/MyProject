@@ -303,9 +303,6 @@ compute_conditional_survival <- function(
     sub_copula <- frankCopula(param = fitted_params, dim = sub_dim)
   } else if ("normalCopula" %in% cop_class) {
     sub_copula <- normalCopula(param = fitted_params, dim = sub_dim)
-  } else if ("tCopula" %in% cop_class) {
-    df <- full_copula@df
-    sub_copula <- tCopula(param = fitted_params, dim = sub_dim, df = df)
   } else {
     stop("Unsupported copula family in compute_conditional_survival.")
   }
