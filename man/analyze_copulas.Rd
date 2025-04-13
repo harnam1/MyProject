@@ -4,16 +4,28 @@
 \alias{analyze_copulas}
 \title{Perform Uniformity Test and Copula Fitting}
 \usage{
-analyze_copulas(data, params_list)
+analyze_copulas(data, flow_cols, params_list)
 }
 \arguments{
-\item{data}{Data frame of flows.}
+\item{data}{A data frame of flows.}
 
-\item{params_list}{Parameter list from fit_pearson_params.}
+\item{flow_cols}{A character vector of column names (e.g., \code{c("parkerdam","greenriver",...)}).}
+
+\item{params_list}{A list of parameter sets for each flow column. Each element
+should have \code{type} (numeric or character), plus the necessary parameters
+for that type.}
 }
 \value{
-A list containing fitted copulas and a summary table.
+A list containing:
+\itemize{
+\item \code{AD_Results}: A named list of AD test results (one per column).
+\item \code{Copula_Results}: A list of fitted copulas and statistics.
+\item \code{Summary}: A data frame of copula fits (AIC, BIC, etc.).
+}
 }
 \description{
-This function takes uniform data transformed using Pearson distributions and fits various copulas.
+This function takes uniform data transformed using Pearson distributions and
+fits various copulas (t, Gumbel, Frank, Clayton, Gaussian). It accepts a
+\code{flow_cols} argument for multiple columns and maps numeric Pearson types
+to Roman numeral strings. Data validation is performed to ensure inputs are valid.
 }

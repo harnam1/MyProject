@@ -2,16 +2,26 @@
 % Please edit documentation in R/plotting.R
 \name{plot_river_histograms}
 \alias{plot_river_histograms}
-\title{Plot Histograms for Each River}
+\title{Plot Histograms for Multiple Flow Columns (Base R Version)}
 \usage{
-plot_river_histograms(data)
+plot_river_histograms(data, flow_cols)
 }
 \arguments{
-\item{data}{A data frame with appropriate columns.}
+\item{data}{A data frame that contains the flow columns to plot.}
+
+\item{flow_cols}{A character vector of column names representing flow measurements. Each column will get its own histogram.}
 }
 \value{
-A grid of ggplot histograms.
+Nothing explicitly returned. Base R histograms are drawn to the current graphics device.
 }
 \description{
-Plot histograms for each river column.
+Creates separate base R histograms for each specified flow column by reshaping the data into a long format
+and then looping over each river (column). It includes data validation to ensure that the input data and columns are valid.
+}
+\examples{
+\dontrun{
+flow_cols <- c("parkerdam", "greenriver", "cameo", "gunnison")
+plot_river_histograms(df, flow_cols)
+}
+
 }

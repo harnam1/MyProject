@@ -2,19 +2,34 @@
 % Please edit documentation in R/fitting.R
 \name{plot_histograms_with_density}
 \alias{plot_histograms_with_density}
-\title{Plot Histograms with Density Lines Based on Pearson Fits}
+\title{Plot Histograms with Pearson Density Curves (Base R) for Multiple Columns}
 \usage{
-plot_histograms_with_density(data, params_list)
+plot_histograms_with_density(data, flow_cols, params_list)
 }
 \arguments{
-\item{data}{The data frame.}
+\item{data}{A data frame containing the columns to plot.}
 
-\item{params_list}{A list of parameter sets returned by fit_pearson_params.}
+\item{flow_cols}{A character vector of column names representing flow data to be plotted.}
+
+\item{params_list}{A named list of parameter sets returned by
+\code{fit_pearson_params()}, where each list element corresponds to a column
+in \code{flow_cols}.}
 }
 \value{
-A grid of ggplot histograms with density lines.
+No return value; base R plots are drawn in the current graphics device.
 }
 \description{
-Plots histograms for each river's flow data and overlays density lines
-based on fitted Pearson distributions.
+Plots histograms for each specified column in a grid layout and overlays
+the corresponding Pearson density curves based on fitted parameters
+from \code{fit_pearson_params()}. Includes data validation and ensures
+both the histogram bars and the density lines are not truncated by the
+plot boundaries (applies a single buffer to both axes).
+}
+\examples{
+\dontrun{
+df <- data.frame(x = rnorm(100), y = rnorm(100, 5, 2))
+params <- fit_pearson_params(df, c("x","y"))
+plot_histograms_with_density(df, c("x","y"), params)
+}
+
 }

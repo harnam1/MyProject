@@ -2,17 +2,29 @@
 % Please edit documentation in R/plotting.R
 \name{plot_time_series}
 \alias{plot_time_series}
-\title{Plot Time Series of Peak Flows}
+\title{Plot Time Series for Multiple Flow Columns}
 \usage{
-plot_time_series(data)
+plot_time_series(data, date_col, flow_cols)
 }
 \arguments{
-\item{data}{A data frame with columns "date", "parkerdam", "greenriver",
-"cameo", and "gunnison".}
+\item{data}{A data frame containing a date column and the specified flow columns.}
+
+\item{date_col}{An unquoted name of the date column in \code{data}.}
+
+\item{flow_cols}{A character vector of column names representing flow measurements.}
 }
 \value{
-A ggplot object.
+A ggplot object showing a time series of each flow column over time.
 }
 \description{
-Plot a time series of flow rates for multiple rivers.
+This function creates a time series plot for each specified flow column,
+automatically assigning different colours to each column.
+}
+\examples{
+\dontrun{
+# Suppose df has a date column named "date" plus columns
+# c("parkerdam","greenriver","cameo","gunnison"):
+plot_time_series(df, date, c("parkerdam","greenriver","cameo","gunnison"))
+}
+
 }

@@ -2,16 +2,25 @@
 % Please edit documentation in R/fitting.R
 \name{fit_pearson_params}
 \alias{fit_pearson_params}
-\title{Fit Pearson Distributions to Each River}
+\title{Fit Pearson Distributions to Multiple Columns with Data Validation}
 \usage{
-fit_pearson_params(data)
+fit_pearson_params(data, flow_cols)
 }
 \arguments{
-\item{data}{Data frame with columns for each river.}
+\item{data}{A data frame containing the columns to be fitted.}
+
+\item{flow_cols}{A character vector of column names to which Pearson distributions will be fitted.}
 }
 \value{
-A list of parameter sets for each river.
+A named list of parameter sets for each column in \code{flow_cols}.
 }
 \description{
-Fits Pearson distributions to each river's flow data using Maximum Likelihood Estimation.
+Fits a Pearson distribution (using \code{PearsonDS::pearsonFitML}) to each specified column in \code{flow_cols} from a data frame after performing data validation. The function checks that the input is a data frame, verifies that all specified columns exist, and ensures that they are numeric (or can be coerced to numeric). It then removes any NA values before applying maximum likelihood estimation.
+}
+\examples{
+\dontrun{
+# Suppose df has columns c("parkerdam", "greenriver", "cameo", "gunnison")
+params_list <- fit_pearson_params(df, c("parkerdam", "greenriver", "cameo", "gunnison"))
+}
+
 }
