@@ -18,7 +18,9 @@
 #' }
 #'
 #' @importFrom tidyr pivot_longer
-#' @importFrom ggplot2 ggplot aes geom_line labs theme_minimal
+#' @importFrom ggplot2 ggplot aes geom_line labs theme_minimal aes_string
+#' @importFrom tidyr all_of
+
 plot_time_series <- function(data, date_col, flow_cols) {
 
   # Convert the unquoted date_col argument to a string (e.g. "date")
@@ -132,7 +134,7 @@ plot_river_histograms <- function(data, flow_cols) {
     hist(
       sub_data$flow,
       main = r,
-      xlab = "Flow Rate",
+      xlab = "Flow Rate (ft³/s)",
       col = "grey",
       border = "black"
     )
