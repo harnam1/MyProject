@@ -21,6 +21,7 @@
 #' @importFrom copula fitCopula tCopula gumbelCopula frankCopula claytonCopula normalCopula
 #' @importFrom ADGofTest ad.test
 #' @importFrom stats AIC BIC logLik punif
+#' @importFrom utils combn
 #' @importFrom PearsonDS ppearson0 ppearsonI ppearsonII ppearsonIII ppearsonIV ppearsonV ppearsonVI ppearsonVII
 #' @export
 analyze_copulas <- function(data, flow_cols, params_list) {
@@ -76,15 +77,23 @@ analyze_copulas <- function(data, flow_cols, params_list) {
 
   # Create uniform variables for each column in flow_cols
   uniform_list <- lapply(flow_cols, function(col) {
-    pick_pearson_cdf(data[[col]], params_list[[col]])
+    transformed <- pick_pearson_cdf(data[[col]], params_list[[col]])
+
+    # Check for NA or Inf immediately after transformation for each column
+    if (any(is.na(transformed)) || any(is.infinite(transformed))) {
+      stop("Transformation resulted in NA or infinite values")
+    }
+
+    # Check for out of range values immediately
+    if (any(transformed < 0, na.rm = TRUE) || any(transformed > 1, na.rm = TRUE)) {
+      stop("Uniform data out of [0, 1] range.")
+    }
+
+    return(transformed)
   })
+
   names(uniform_list) <- flow_cols
   data_uniform <- do.call(cbind, uniform_list)
-
-  # Validate that uniform data are within [0, 1]
-  if (any(data_uniform < 0, na.rm = TRUE) || any(data_uniform > 1, na.rm = TRUE)) {
-    stop("Uniform data out of [0, 1] range.")
-  }
 
   # Perform AD tests for each column
   ad_results <- lapply(flow_cols, function(col) {
@@ -103,6 +112,24 @@ analyze_copulas <- function(data, flow_cols, params_list) {
 
   # Set copula dimension and define copulas
   d <- length(flow_cols)
+
+  # Validate that the dimension > 2
+  if (d < 2) {
+    # Return just the AD results with empty copula info when dimension is insufficient
+    warning("Copula fitting requires at least 2 dimensions, skipping copula analysis.")
+    return(list(
+      AD_Results = ad_results,
+      Copula_Results = list(),
+      Summary = data.frame(
+        Copula = character(),
+        LogLikelihood = numeric(),
+        AIC = numeric(),
+        BIC = numeric()
+      )
+    ))
+  }
+
+  # Continue Fitting Copulas
   copula_list <- list(
     t = tCopula(dim = d),
     gumbel = gumbelCopula(dim = d),
