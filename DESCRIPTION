@@ -12,11 +12,14 @@ Depends:
     R (>= 3.5)
 LazyData: true
 Imports:
-  copula,
-  ggplot2,
-  gridExtra,
-  nortest, 
-  PearsonDS, 
-  ADGofTest
+    copula,
+    ggplot2,
+    PearsonDS,
+    ADGofTest,
+    tidyr,
+    utils
 URL: https://github.com/harnam1/MyProject
 BugReports: https://github.com/harnam1/MyProject/issues
+Suggests: 
+    testthat (>= 3.0.0)
+Config/testthat/edition: 3
