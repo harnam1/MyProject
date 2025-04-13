@@ -17,3 +17,6 @@
 #' data(data_peakflow)
 #' head(data_peakflow)
 "data_peakflow"
+
+utils::globalVariables("data_peakflow")
+
