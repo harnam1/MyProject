@@ -170,7 +170,7 @@ plot_histograms_with_density <- function(data, flow_cols, params_list) {
     hist(
       column_data,
       main = col_name,
-      xlab = "Flow Rate",
+      xlab = "Flow Rate (ft³/s)",
       freq = FALSE,          # plot density on the y-axis
       col = "white",
       border = "black",
